@@ -6,11 +6,8 @@ bool ModeDBFCDA::_enter()
     plane.throttle_allows_nudging = false; //changed
     plane.auto_throttle_mode = false;  //changed
     plane.auto_navigation_mode = true;
-    if (plane.quadplane.available() && plane.quadplane.enable == 2) {
-        plane.auto_state.vtol_mode = true;
-    } else {
-        plane.auto_state.vtol_mode = false;
-    }
+    plane.auto_state.vtol_mode = false;
+
     plane.next_WP_loc = plane.prev_WP_loc = plane.current_loc;
     // start or resume the mission, based on MIS_AUTORESET
     plane.mission.start_or_resume();
@@ -31,8 +28,7 @@ void ModeDBFCDA::_exit()
     if (plane.mission.state() == AP_Mission::MISSION_RUNNING) {
         plane.mission.stop();
 
-        if (plane.mission.get_current_nav_cmd().id == MAV_CMD_NAV_LAND &&
-            !plane.quadplane.is_vtol_land(plane.mission.get_current_nav_cmd().id)) //error here?
+        if (plane.mission.get_current_nav_cmd().id == MAV_CMD_NAV_LAND) //error here?
         {
             plane.landing.restart_landing_sequence();
         }
@@ -52,9 +48,7 @@ void ModeDBFCDA::update()
 
     uint16_t nav_cmd_id = plane.mission.get_current_nav_cmd().id;
 
-    if (plane.quadplane.in_vtol_auto()) {
-        plane.quadplane.control_auto();
-    } else if (nav_cmd_id == MAV_CMD_NAV_LAND) { //could potentially trigger this loop after detachment!
+    if (nav_cmd_id == MAV_CMD_NAV_LAND) { //could potentially trigger this loop after detachment!
         plane.calc_nav_roll();
         plane.calc_nav_pitch();
 
