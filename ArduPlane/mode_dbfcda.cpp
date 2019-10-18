@@ -6,8 +6,11 @@ bool ModeDBFCDA::_enter()
     plane.throttle_allows_nudging = false; //changed
     plane.auto_throttle_mode = false;  //changed
     plane.auto_navigation_mode = true;
-    plane.auto_state.vtol_mode = false;
-
+    if (plane.quadplane.available() && plane.quadplane.enable == 2) {
+        plane.auto_state.vtol_mode = true;
+    } else {
+        plane.auto_state.vtol_mode = false;
+    }
     plane.next_WP_loc = plane.prev_WP_loc = plane.current_loc;
     // start or resume the mission, based on MIS_AUTORESET
     plane.mission.start_or_resume();
