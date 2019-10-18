@@ -40,7 +40,8 @@ void Plane::failsafe_short_on_event(enum failsafe_state fstype, mode_reason_t re
         break;
         
     case Mode::Number::AUTO:
-    case Mode::Number::AVOID_ADSB:
+    case Mode::Number::DBFCDA:
+    case Mode::Number::AVOID_ADSB: //add more here?
     case Mode::Number::GUIDED:
     case Mode::Number::LOITER:
         if(g.fs_action_short != FS_ACTION_SHORT_BESTGUESS) {
@@ -106,6 +107,7 @@ void Plane::failsafe_long_on_event(enum failsafe_state fstype, mode_reason_t rea
         break;
         
     case Mode::Number::AUTO:
+    case Mode::Number::DBFCDA:
     case Mode::Number::AVOID_ADSB:
     case Mode::Number::GUIDED:
     case Mode::Number::LOITER:
