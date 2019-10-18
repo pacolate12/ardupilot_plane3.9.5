@@ -34,6 +34,9 @@ Mode *Plane::mode_from_mode_num(const enum Mode::Number num)
     case Mode::Number::AUTO:
         ret = &mode_auto;
         break;
+    case Mode::Number::DBFCDA:
+        ret = &mode_dbfcda;
+        break;
     case Mode::Number::RTL:
         ret = &mode_rtl;
         break;
