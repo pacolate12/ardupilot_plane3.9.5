@@ -29,7 +29,7 @@ void ModeDBFCDA::_exit()
         plane.mission.stop();
 
         if (plane.mission.get_current_nav_cmd().id == MAV_CMD_NAV_LAND &&
-            !plane.quadplane.is_vtol_land(plane.mission.get_current_nav_cmd().id))
+            !plane.quadplane.is_vtol_land(plane.mission.get_current_nav_cmd().id)) //error here?
         {
             plane.landing.restart_landing_sequence();
         }
@@ -49,7 +49,9 @@ void ModeDBFCDA::update()
 
     uint16_t nav_cmd_id = plane.mission.get_current_nav_cmd().id;
 
-    if (nav_cmd_id == MAV_CMD_NAV_LAND) { //could potentially trigger this loop after detachment!
+    if (plane.quadplane.in_vtol_auto()) {
+        plane.quadplane.control_auto();
+    } else if (nav_cmd_id == MAV_CMD_NAV_LAND) { //could potentially trigger this loop after detachment!
         plane.calc_nav_roll();
         plane.calc_nav_pitch();
 
