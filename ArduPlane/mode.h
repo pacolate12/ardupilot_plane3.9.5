@@ -35,6 +35,7 @@ public:
         QRTL          = 21,
         QAUTOTUNE     = 22,
         QACRO         = 23,
+        DBFCDA       = 24, 
     };
 
     // Constructor
@@ -72,6 +73,23 @@ protected:
 
     // subclasses override this to perform any required cleanup when exiting the mode
     virtual void _exit() { return; }
+};
+
+class ModeDBFCDA : public Mode
+{
+public:
+
+    Number mode_number() const override { return Number::DBFCDA; }
+    const char *name() const override { return "DBFCDA"; }
+    const char *name4() const override { return "DBFC"; }
+
+    // methods that affect movement of the vehicle in this mode - change to our own? No
+    void update() override;
+
+protected:
+
+    bool _enter() override;
+    void _exit() override;
 };
 
 
