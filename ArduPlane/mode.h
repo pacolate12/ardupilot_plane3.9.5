@@ -35,7 +35,7 @@ public:
         QRTL          = 21,
         QAUTOTUNE     = 22,
         QACRO         = 23,
-        DBFCDA       = 24, 
+        DBFCDA        = 24, 
     };
 
     // Constructor

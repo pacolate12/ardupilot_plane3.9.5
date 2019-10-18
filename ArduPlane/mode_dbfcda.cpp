@@ -1,16 +1,13 @@
 #include "mode.h"
 #include "Plane.h"
 
-bool ModeAuto::_enter()
+bool ModeDBFCDA::_enter()
 {
     plane.throttle_allows_nudging = true;
     plane.auto_throttle_mode = true;
     plane.auto_navigation_mode = true;
-    if (plane.quadplane.available() && plane.quadplane.enable == 2) {
-        plane.auto_state.vtol_mode = true;
-    } else {
-        plane.auto_state.vtol_mode = false;
-    }
+    plane.auto_state.vtol_mode = false;
+
     plane.next_WP_loc = plane.prev_WP_loc = plane.current_loc;
     // start or resume the mission, based on MIS_AUTORESET
     plane.mission.start_or_resume();
@@ -23,14 +20,10 @@ bool ModeAuto::_enter()
         }
     }
 
-#if SOARING_ENABLED == ENABLED
-    plane.g2.soaring_controller.init_cruising();
-#endif
-
     return true;
 }
 
-void ModeAuto::_exit()
+void ModeDBFCDA::_exit()
 {
     if (plane.mission.state() == AP_Mission::MISSION_RUNNING) {
         plane.mission.stop();
@@ -44,7 +37,7 @@ void ModeAuto::_exit()
     plane.auto_state.started_flying_in_auto_ms = 0;
 }
 
-void ModeAuto::update()
+void ModeDBFCDA::update()
 {
     if (plane.mission.state() != AP_Mission::MISSION_RUNNING) {
         // this could happen if AP_Landing::restart_landing_sequence() returns false which would only happen if:
