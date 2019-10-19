@@ -19,7 +19,8 @@ bool ModeDBFCDA::_enter()
             hal.util->persistent_data.waypoint_num = 0;
         }
     }
-
+    
+    gcs().send_text(MAV_SEVERITY_INFO, "enter in mode_dbfcda.cpp");
     return true;
 }
 
@@ -71,5 +72,6 @@ void ModeDBFCDA::update()
         plane.calc_nav_pitch();
         plane.calc_throttle();
     }
+    gcs().send_text(MAV_SEVERITY_INFO, "update in mode_dbfcda.cpp");
 }
 
