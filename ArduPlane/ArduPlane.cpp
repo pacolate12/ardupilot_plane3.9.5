@@ -442,7 +442,7 @@ void Plane::update_navigation()
         }
         break;
     
-    case Mode::Number::DBFCDA: //Add some code here!
+    case Mode::Number::DBFCDA: //Add some code here! - look like RTL
         if (ahrs.home_is_set()) {
             mission.update();
         }
