@@ -39,12 +39,13 @@ void ModeDBFCDA::_exit()
 
 void ModeDBFCDA::update()
 {
+    // Will be triggered during mode switch from auto to dbfcda
     if (plane.mission.state() != AP_Mission::MISSION_RUNNING) { //understand this!
         // this could happen if AP_Landing::restart_landing_sequence() returns false which would only happen if:
         // restart_landing_sequence() is called when not executing a NAV_LAND or there is no previous nav point
-        plane.set_mode(plane.mode_rtl, MODE_REASON_MISSION_END);
-        gcs().send_text(MAV_SEVERITY_INFO, "Aircraft in auto without a running mission");
-        return;
+        //plane.set_mode(plane.mode_rtl, MODE_REASON_MISSION_END);
+        gcs().send_text(MAV_SEVERITY_INFO, "Aircraft has no waypoint...");
+        //return;
     }
 
     uint16_t nav_cmd_id = plane.mission.get_current_nav_cmd().id;
@@ -70,7 +71,7 @@ void ModeDBFCDA::update()
         }
         plane.calc_nav_roll();
         plane.calc_nav_pitch();
-        plane.calc_throttle();
+        //plane.calc_throttle();
     }
     gcs().send_text(MAV_SEVERITY_INFO, "update in mode_dbfcda.cpp");
 }
