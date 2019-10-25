@@ -1,6 +1,5 @@
 #include "mode.h"
 #include "Plane.h"
-#include "AP_L1_Control.h"
 
 //from example code?
 const AP_HAL::HAL& hal = AP_HAL::get_HAL(); 
