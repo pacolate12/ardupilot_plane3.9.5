@@ -1,6 +1,10 @@
 #include "mode.h"
 #include "Plane.h"
 
+//from example code?
+const AP_HAL::HAL& hal = AP_HAL::get_HAL(); 
+AP_AHRS &_ahrs;
+
 bool ModeDBFCDA::_enter()
 {
     plane.throttle_allows_nudging = false; //changed
@@ -35,6 +39,7 @@ void ModeDBFCDA::_exit()
         }
     }
     plane.auto_state.started_flying_in_auto_ms = 0;
+    gcs().send_text(MAV_SEVERITY_INFO, "Exiting mode_dbfcda.cpp ??");
 }
 
 void ModeDBFCDA::update()
@@ -48,6 +53,7 @@ void ModeDBFCDA::update()
         //return;
     }
 
+    //
     uint16_t nav_cmd_id = plane.mission.get_current_nav_cmd().id;
 
     if (nav_cmd_id == MAV_CMD_NAV_LAND) { //could potentially trigger this loop after detachment!
@@ -63,6 +69,20 @@ void ModeDBFCDA::update()
         } else {
             plane.calc_throttle();
         }
+    } else if(nav_cmd_id == MAV_CMD_NAV_WAYPOINT) {
+
+        //TECS Controller: Attitude.cpp::calc_nav_pitch, AP_TECS.h
+        int32_t commanded_pitch = plane.SpdHgt_Controller->get_pitch_demand(); //pitch angle demand: -9000 to +9000 rad
+        //L1 Controller: Attitude.cpp::calc_nav_roll, AP_L1_Control.cpp
+        int32_t commanded_roll = plane.nav_controller->nav_roll_cd(); //bank angle needed to achieve tracking from the last update_*() 
+        
+        float measured_pitch = _ahrs.pitch;
+        float measured_roll = _ahrs.roll;
+
+        gcs().send_text(MAV_SEVERITY_INFO, "Pitch (Measured - Commanded): %f%u", measured_pitch, commanded_pitch);
+        plane.calc_nav_roll();
+        plane.calc_nav_pitch();
+        
     } else { //could potentially use this loop to do nothing while attached to mothership!
         // we are doing normal AUTO flight, the special cases
         // are for takeoff and landing
