@@ -76,10 +76,10 @@ void ModeDBFCDA::update()
         float measured_pitch = plane.ahrs.get_pitch();
         float measured_roll = plane.ahrs.get_roll();
 
-        gcs().send_text(MAV_SEVERITY_INFO, "Pitch (Measured): %f", measured_pitch);
-        gcs().send_text(MAV_SEVERITY_INFO, "Pitch (Measured): %u", commanded_pitch);
-        gcs().send_text(MAV_SEVERITY_INFO, "Roll (Measured - Commanded): %f", measured_roll);
-        gcs().send_text(MAV_SEVERITY_INFO, "Roll (Measured - Commanded): %u", commanded_roll);
+        gcs().send_text(MAV_SEVERITY_INFO, "Pitch (Measured): %f", measured_pitch); //-0.055 ish
+        gcs().send_text(MAV_SEVERITY_INFO, "Pitch (Commanded): %u", commanded_pitch); //4294967036 ?? check defs
+        gcs().send_text(MAV_SEVERITY_INFO, "Roll (Measured): %f", measured_roll); //.16488 ish
+        gcs().send_text(MAV_SEVERITY_INFO, "Roll (Commanded): %u", commanded_roll); //997 ?? check defs
 
         plane.calc_nav_roll();
         plane.calc_nav_pitch();
