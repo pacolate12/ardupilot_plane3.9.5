@@ -1,8 +1,6 @@
 #include "mode.h"
 #include "Plane.h"
 
-//from example code?
-const AP_HAL::HAL& hal = AP_HAL::get_HAL(); 
 
 bool ModeDBFCDA::_enter()
 {
