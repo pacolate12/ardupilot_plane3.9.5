@@ -1,9 +1,9 @@
 #include "mode.h"
 #include "Plane.h"
+#include "AP_L1_Control.h"
 
 //from example code?
 const AP_HAL::HAL& hal = AP_HAL::get_HAL(); 
-AP_AHRS &_ahrs;
 
 bool ModeDBFCDA::_enter()
 {
@@ -76,8 +76,8 @@ void ModeDBFCDA::update()
         //L1 Controller: Attitude.cpp::calc_nav_roll, AP_L1_Control.cpp
         int32_t commanded_roll = plane.nav_controller->nav_roll_cd(); //bank angle needed to achieve tracking from the last update_*() 
         
-        float measured_pitch = _ahrs.pitch;
-        float measured_roll = _ahrs.roll;
+        float measured_pitch = plane.ahrs.get_pitch();
+        float measured_roll = plane.ahrs.get_roll();
 
         gcs().send_text(MAV_SEVERITY_INFO, "Pitch (Measured - Commanded): %f%u", measured_pitch, commanded_pitch);
         plane.calc_nav_roll();
