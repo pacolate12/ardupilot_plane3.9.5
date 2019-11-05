@@ -78,23 +78,28 @@ void ModeDBFCDA::update()
         
         float measured_pitch = plane.ahrs.get_pitch();
         float measured_roll = plane.ahrs.get_roll();
-        if (plane.ahrs.have_inertial_nav()) {
-            Vector2f measured_vel = plane.ahrs.groundspeed_vector();
-        }
+        //if (plane.ahrs.have_inertial_nav()) {
+        Vector2f measured_vel = plane.ahrs.groundspeed_vector();
+        float measured_vel_x = measured_vel.x;
+        float measured_vel_y = measured_vel.y;
+        //}
         float measured_baro = plane.barometer.get_altitude(); //altitude relative to last calibrate() call
-        //ADD GPS data
+        //GPS data read
+        Location gps = plane.gps.location();
+
         // - Altitude, Velocity, Position, Pitch, Roll, Yaw
+        //Better way to do this is to just index variables?
 
         
         //Output to mavlink - run every 50 Hz?
         if ((AP_HAL::micros() - timer) > 100 * 1000UL) {
             timer = AP_HAL::micros();
             //Add timer based update message to MP
-            gcs().send_text(MAV_SEVERITY_INFO, "Pitch (Measured): %f", measured_pitch); //-0.055 ish
-            gcs().send_text(MAV_SEVERITY_INFO, "Pitch (Commanded): %u", commanded_pitch); //4294967036 ?? check defs
-            gcs().send_text(MAV_SEVERITY_INFO, "Roll (Measured): %f", measured_roll); //.16488 ish
-            gcs().send_text(MAV_SEVERITY_INFO, "Roll (Commanded): %u", commanded_roll); //997 ?? check defs
-            gcs().send_text(MAV_SEVERITY_INFO, "Position: %u", plane.gps.location()); //997 ?? check defs
+            gcs().send_text(MAV_SEVERITY_INFO, "Pitch (Measured): %f", measured_pitch);
+            gcs().send_text(MAV_SEVERITY_INFO, "Roll (Measured): %f", measured_roll);
+            gcs().send_text(MAV_SEVERITY_INFO, "Roll (Commanded): %f", measured_vel_x);
+            gcs().send_text(MAV_SEVERITY_INFO, "Roll (Commanded): %f", measured_vel_y);            
+            gcs().send_text(MAV_SEVERITY_INFO, "Position: %u", plane.gps.location());
         }
 
         //Add tuning variable acess in MP
