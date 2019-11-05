@@ -101,6 +101,7 @@ void ModeDBFCDA::update()
             gcs().send_text(MAV_SEVERITY_INFO, "Velocity X : %f", measured_vel_x);
             gcs().send_text(MAV_SEVERITY_INFO, "Velocity Y : %f", measured_vel_y);            
             gcs().send_text(MAV_SEVERITY_INFO, "Position (lat) : %i", measured_lat);
+            gcs().send_text(MAV_SEVERITY_INFO, "Altitude : %i", measured_baro);
         }
 
         //Add tuning variable acess in MP
