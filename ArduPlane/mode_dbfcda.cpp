@@ -93,7 +93,7 @@ void ModeDBFCDA::update()
 
         
         //Output to mavlink - run every 50 Hz?
-        if ((AP_HAL::micros() - timer) > 100 * 1000UL) {
+        if ((AP_HAL::micros() - timer) > 10000 * 1000UL) {
             timer = AP_HAL::micros();
             //Add timer based update message to MP
             gcs().send_text(MAV_SEVERITY_INFO, "Pitch (Measured) : %f", measured_pitch);
