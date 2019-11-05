@@ -1,6 +1,7 @@
 #include "mode.h"
 #include "Plane.h"
 
+static uint32_t timer;
 
 bool ModeDBFCDA::_enter()
 {
@@ -20,6 +21,7 @@ bool ModeDBFCDA::_enter()
             hal.util->persistent_data.waypoint_num = 0;
         }
     }
+    timer = AP_HAL::micros();
     
     gcs().send_text(MAV_SEVERITY_INFO, "enter in mode_dbfcda.cpp");
     return true;
@@ -66,6 +68,7 @@ void ModeDBFCDA::update()
         } else {
             plane.calc_throttle();
         }
+
     } else if(nav_cmd_id == MAV_CMD_NAV_WAYPOINT) {
 
         //TECS Controller: Attitude.cpp::calc_nav_pitch, AP_TECS.h
@@ -73,21 +76,26 @@ void ModeDBFCDA::update()
         //L1 Controller: Attitude.cpp::calc_nav_roll, AP_L1_Control.cpp
         int32_t commanded_roll = plane.nav_controller->nav_roll_cd(); //bank angle needed to achieve tracking from the last update_*() 
         
-        //Add barometer data
-        //ADD GPS data
-        // - Altitude, Velocity, Position, Pitch, Roll, Yaw
-
         float measured_pitch = plane.ahrs.get_pitch();
         float measured_roll = plane.ahrs.get_roll();
         if (plane.ahrs.have_inertial_nav()) {
             Vector2f measured_vel = plane.ahrs.groundspeed_vector();
         }
+        float measured_baro = plane.barometer.get_altitude(); //altitude relative to last calibrate() call
+        //ADD GPS data
+        // - Altitude, Velocity, Position, Pitch, Roll, Yaw
 
-        //Add timer based update message to MP
-        gcs().send_text(MAV_SEVERITY_INFO, "Pitch (Measured): %f", measured_pitch); //-0.055 ish
-        gcs().send_text(MAV_SEVERITY_INFO, "Pitch (Commanded): %u", commanded_pitch); //4294967036 ?? check defs
-        gcs().send_text(MAV_SEVERITY_INFO, "Roll (Measured): %f", measured_roll); //.16488 ish
-        gcs().send_text(MAV_SEVERITY_INFO, "Roll (Commanded): %u", commanded_roll); //997 ?? check defs
+        
+        //Output to mavlink - run every 50 Hz?
+        if ((AP_HAL::micros() - timer) > 100 * 1000UL) {
+            timer = AP_HAL::micros();
+            //Add timer based update message to MP
+            gcs().send_text(MAV_SEVERITY_INFO, "Pitch (Measured): %f", measured_pitch); //-0.055 ish
+            gcs().send_text(MAV_SEVERITY_INFO, "Pitch (Commanded): %u", commanded_pitch); //4294967036 ?? check defs
+            gcs().send_text(MAV_SEVERITY_INFO, "Roll (Measured): %f", measured_roll); //.16488 ish
+            gcs().send_text(MAV_SEVERITY_INFO, "Roll (Commanded): %u", commanded_roll); //997 ?? check defs
+            gcs().send_text(MAV_SEVERITY_INFO, "Position: %u", plane.gps.location()); //997 ?? check defs
+        }
 
         //Add tuning variable acess in MP
 
