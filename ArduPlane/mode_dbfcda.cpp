@@ -72,9 +72,9 @@ void ModeDBFCDA::update()
     } else if(nav_cmd_id == MAV_CMD_NAV_WAYPOINT) {
 
         //TECS Controller: Attitude.cpp::calc_nav_pitch, AP_TECS.h
-        int32_t commanded_pitch = plane.SpdHgt_Controller->get_pitch_demand(); //pitch angle demand: -9000 to +9000 rad
+        //int32_t commanded_pitch = plane.SpdHgt_Controller->get_pitch_demand(); //pitch angle demand: -9000 to +9000 rad
         //L1 Controller: Attitude.cpp::calc_nav_roll, AP_L1_Control.cpp
-        int32_t commanded_roll = plane.nav_controller->nav_roll_cd(); //bank angle needed to achieve tracking from the last update_*() 
+        //int32_t commanded_roll = plane.nav_controller->nav_roll_cd(); //bank angle needed to achieve tracking from the last update_*() 
         
         float measured_pitch = plane.ahrs.get_pitch();
         float measured_roll = plane.ahrs.get_roll();
@@ -85,7 +85,8 @@ void ModeDBFCDA::update()
         //}
         float measured_baro = plane.barometer.get_altitude(); //altitude relative to last calibrate() call
         //GPS data read
-        Location gps = plane.gps.location();
+        Location measured_gps = plane.gps.location();
+        int32_t measured_lat = measured_gps.lat;
 
         // - Altitude, Velocity, Position, Pitch, Roll, Yaw
         //Better way to do this is to just index variables?
@@ -95,11 +96,11 @@ void ModeDBFCDA::update()
         if ((AP_HAL::micros() - timer) > 100 * 1000UL) {
             timer = AP_HAL::micros();
             //Add timer based update message to MP
-            gcs().send_text(MAV_SEVERITY_INFO, "Pitch (Measured): %f", measured_pitch);
-            gcs().send_text(MAV_SEVERITY_INFO, "Roll (Measured): %f", measured_roll);
-            gcs().send_text(MAV_SEVERITY_INFO, "Roll (Commanded): %f", measured_vel_x);
-            gcs().send_text(MAV_SEVERITY_INFO, "Roll (Commanded): %f", measured_vel_y);            
-            gcs().send_text(MAV_SEVERITY_INFO, "Position: %u", plane.gps.location());
+            gcs().send_text(MAV_SEVERITY_INFO, "Pitch (Measured) : %f", measured_pitch);
+            gcs().send_text(MAV_SEVERITY_INFO, "Roll (Measured) : %f", measured_roll);
+            gcs().send_text(MAV_SEVERITY_INFO, "Velocity X : %f", measured_vel_x);
+            gcs().send_text(MAV_SEVERITY_INFO, "Velocity Y : %f", measured_vel_y);            
+            gcs().send_text(MAV_SEVERITY_INFO, "Position (lat) : %i", measured_lat);
         }
 
         //Add tuning variable acess in MP
