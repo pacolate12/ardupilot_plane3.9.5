@@ -48,7 +48,7 @@ void ModeDBFCDA::update()
         // this could happen if AP_Landing::restart_landing_sequence() returns false which would only happen if:
         // restart_landing_sequence() is called when not executing a NAV_LAND or there is no previous nav point
         //plane.set_mode(plane.mode_rtl, MODE_REASON_MISSION_END);
-        gcs().send_text(MAV_SEVERITY_INFO, "Aircraft has no waypoint...");
+        //gcs().send_text(MAV_SEVERITY_INFO, "Aircraft has no waypoint...");
         //return;
     }
 
@@ -119,6 +119,6 @@ void ModeDBFCDA::update()
         plane.calc_nav_pitch();
         //plane.calc_throttle();
     }
-    gcs().send_text(MAV_SEVERITY_INFO, "update in mode_dbfcda.cpp");
+    //gcs().send_text(MAV_SEVERITY_INFO, "update in mode_dbfcda.cpp");
 }
 
