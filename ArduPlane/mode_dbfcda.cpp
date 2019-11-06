@@ -89,6 +89,7 @@ void ModeDBFCDA::update()
         int32_t measured_lat = measured_gps.lat;
         int32_t measured_long = measured_gps.lng;
         int32_t measured_alt = measured_gps.alt;
+        bool mission = false;
 
         // - Altitude, Velocity, Position, Pitch, Roll, Yaw
         //Better way to do this is to just index variables?
@@ -112,13 +113,15 @@ void ModeDBFCDA::update()
 
         if (measured_baro > 150.0f) {
             //plane.nav_pitch_cd = -8000;
-            //plane.nav_roll_cd = constrain_int32(5000, -plane.roll_limit_cd, plane.roll_limit_cd);
-            //plane.nav_pitch_cd = constrain_int32(-5000, plane.pitch_limit_min_cd, plane.aparm.pitch_limit_max_cd.get());
+            plane.nav_roll_cd = constrain_int32(5000, -plane.roll_limit_cd, plane.roll_limit_cd);
+            plane.nav_pitch_cd = constrain_int32(-5000, plane.pitch_limit_min_cd, plane.aparm.pitch_limit_max_cd.get());
             //SRV_Channels::set_output_scaled(SRV_Channel::k_elevator, elevator);
-            SRV_Channels::set_output_scaled(SRV_Channel::k_elevator, -3000);
+            //SRV_Channels::set_output_scaled(SRV_Channel::k_elevator, -3000);
             //plane.suppress_throttle = true;
+
+            mission = true;
             
-        } else {
+        } else if (!mission) {
             plane.calc_nav_roll();
             plane.calc_nav_pitch();
         }
