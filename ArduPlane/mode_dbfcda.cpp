@@ -115,7 +115,7 @@ void ModeDBFCDA::update()
             //plane.nav_roll_cd = constrain_int32(5000, -plane.roll_limit_cd, plane.roll_limit_cd);
             //plane.nav_pitch_cd = constrain_int32(-5000, plane.pitch_limit_min_cd, plane.aparm.pitch_limit_max_cd.get());
             //SRV_Channels::set_output_scaled(SRV_Channel::k_elevator, elevator);
-            m_commanded_pitch = -8000 
+            SRV_Channels::set_output_scaled(SRV_Channel::k_elevator, -3000);
             //plane.suppress_throttle = true;
             
         } else {
