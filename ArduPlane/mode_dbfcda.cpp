@@ -87,21 +87,29 @@ void ModeDBFCDA::update()
         //GPS data read
         Location measured_gps = plane.gps.location();
         int32_t measured_lat = measured_gps.lat;
+        int32_t measured_long = measured_gps.lng;
+        int32_t measured_alt = measured_gps.alt;
 
         // - Altitude, Velocity, Position, Pitch, Roll, Yaw
         //Better way to do this is to just index variables?
 
         
-        //Output to mavlink - run every 50 Hz?
-        if ((AP_HAL::micros() - timer) > 10000 * 1000UL) {
+        //Output to mavlink - run every .5 Hz?
+        if ((AP_HAL::micros() - timer) > 2000 * 1000UL) {
             timer = AP_HAL::micros();
             //Add timer based update message to MP
-            gcs().send_text(MAV_SEVERITY_INFO, "Pitch (Measured) : %f", measured_pitch);
-            gcs().send_text(MAV_SEVERITY_INFO, "Roll (Measured) : %f", measured_roll);
-            gcs().send_text(MAV_SEVERITY_INFO, "Velocity X : %f", measured_vel_x);
-            gcs().send_text(MAV_SEVERITY_INFO, "Velocity Y : %f", measured_vel_y);            
-            gcs().send_text(MAV_SEVERITY_INFO, "Position (lat) : %i", measured_lat);
-            gcs().send_text(MAV_SEVERITY_INFO, "Altitude : %f", measured_baro);
+            gcs().send_text(MAV_SEVERITY_INFO, "Pitch (Measured) : %f", measured_pitch); //Values: .08 - .1 = climb
+            gcs().send_text(MAV_SEVERITY_INFO, "Roll (Measured) : %f", measured_roll); //Values: -.6 = bank left
+            gcs().send_text(MAV_SEVERITY_INFO, "Velocity X : %f", measured_vel_x); //Values: m/s (+- values!) around 21
+            gcs().send_text(MAV_SEVERITY_INFO, "Velocity Y : %f", measured_vel_y); //Values: m/s (+- values!)
+            gcs().send_text(MAV_SEVERITY_INFO, "Position (lat) : %i", measured_lat); //Values: 334295519
+            gcs().send_text(MAV_SEVERITY_INFO, "Position (long) : %i", measured_long); //Values: 
+            gcs().send_text(MAV_SEVERITY_INFO, "Altitude (baro) : %f", measured_baro); //Values: m around 100
+            gcs().send_text(MAV_SEVERITY_INFO, "Altitude (gps) : %f", measured_alt); //Values:
+        }
+
+        if (measured_baro > 250.0f) {
+            plane.nav_pitch_cd = -10;
         }
 
         //Add tuning variable acess in MP
