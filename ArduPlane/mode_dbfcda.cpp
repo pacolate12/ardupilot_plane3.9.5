@@ -8,7 +8,7 @@ bool ModeDBFCDA::_enter()
 {
     plane.throttle_allows_nudging = false; //changed
     plane.auto_throttle_mode = false;  //changed
-    plane.auto_navigation_mode = true;
+    plane.auto_navigation_mode = false; //changed!
     plane.auto_state.vtol_mode = false;
 
     plane.next_WP_loc = plane.prev_WP_loc = plane.current_loc;
@@ -120,13 +120,14 @@ void ModeDBFCDA::update()
 
             //SRV_Channels::set_output_scaled(SRV_Channel::k_elevator, -3000); //range -4500 to 4500
             SRV_Channels::set_output_scaled(SRV_Channel::k_aileron, 50); //range -4500 to 4500
-            //SRV_Channels::set_output_scaled(SRV_Channel::k_throttle, 0);
+            SRV_Channels::set_output_scaled(SRV_Channel::k_throttle, 0);
 
             mission = true;
             
         } else if (!mission) {
             plane.calc_nav_roll();
             plane.calc_nav_pitch();
+            plane.calc_throttle();
         }
 
         //Add tuning variable acess in MP
@@ -140,6 +141,7 @@ void ModeDBFCDA::update()
         plane.calc_nav_roll();
         plane.calc_nav_pitch();
         //plane.calc_throttle();
+        gcs().send_text(MAV_SEVERITY_INFO, "inside else loop? - no waypoint");
     }
     //gcs().send_text(MAV_SEVERITY_INFO, "update in mode_dbfcda.cpp");
 }
