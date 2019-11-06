@@ -105,11 +105,11 @@ void ModeDBFCDA::update()
             gcs().send_text(MAV_SEVERITY_INFO, "Position (lat) : %i", measured_lat); //Values: 334295519
             gcs().send_text(MAV_SEVERITY_INFO, "Position (long) : %i", measured_long); //Values: 
             gcs().send_text(MAV_SEVERITY_INFO, "Altitude (baro) : %f", measured_baro); //Values: m around 100
-            gcs().send_text(MAV_SEVERITY_INFO, "Altitude (gps) : %f", measured_alt); //Values:
+            gcs().send_text(MAV_SEVERITY_INFO, "Altitude (gps) : %i", measured_alt); //Values: 0?
         }
 
-        if (measured_baro > 250.0f) {
-            plane.nav_pitch_cd = -10;
+        if (measured_baro > 150.0f) {
+            plane.nav_pitch_cd = -8000;
         }
 
         //Add tuning variable acess in MP
