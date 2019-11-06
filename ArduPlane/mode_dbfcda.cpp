@@ -72,7 +72,7 @@ void ModeDBFCDA::update()
     } else if(nav_cmd_id == MAV_CMD_NAV_WAYPOINT) {
 
         //TECS Controller: Attitude.cpp::calc_nav_pitch, AP_TECS.h
-        int32_t commanded_pitch = plane.SpdHgt_Controller->get_pitch_demand(); //pitch angle demand: -9000 to +9000 rad
+        int32_t m_commanded_pitch = plane.SpdHgt_Controller->get_pitch_demand(); //pitch angle demand: -9000 to +9000 rad
         //L1 Controller: Attitude.cpp::calc_nav_roll, AP_L1_Control.cpp
         //int32_t commanded_roll = plane.nav_controller->nav_roll_cd(); //bank angle needed to achieve tracking from the last update_*() 
         
@@ -103,14 +103,17 @@ void ModeDBFCDA::update()
             gcs().send_text(MAV_SEVERITY_INFO, "Velocity X : %f", measured_vel_x); //Values: m/s (+- values!) around 21
             gcs().send_text(MAV_SEVERITY_INFO, "Velocity Y : %f", measured_vel_y); //Values: m/s (+- values!)
             gcs().send_text(MAV_SEVERITY_INFO, "Position (lat) : %i", measured_lat); //Values: 334295519
-            gcs().send_text(MAV_SEVERITY_INFO, "Position (long) : %i", measured_long); //Values: 
-            gcs().send_text(MAV_SEVERITY_INFO, "Altitude (baro) : %f", measured_baro); //Values: m around 100.0
-            gcs().send_text(MAV_SEVERITY_INFO, "Altitude (gps) : %i", measured_alt); //Values: working
-            gcs().send_text(MAV_SEVERITY_INFO, "Altitude (gps) : %i", commanded_pitch); //Values:
+            gcs().send_text(MAV_SEVERITY_INFO, "Position (long) : %i", measured_long); //Values: -841683625
+            gcs().send_text(MAV_SEVERITY_INFO, "Altitude (baro) : %f", measured_baro); //Values: m around 148.1213
+            gcs().send_text(MAV_SEVERITY_INFO, "Altitude (gps) : %i", measured_alt); //Values: 14098
+            gcs().send_text(MAV_SEVERITY_INFO, "Commanded Pitch : %i", m_commanded_pitch); //Values: 442?
         }
 
         if (measured_baro > 150.0f) {
-            plane.nav_pitch_cd = -8000;
+            //plane.nav_pitch_cd = -8000;
+            plane.nav_roll_cd = constrain_int32(-5000, -plane.roll_limit_cd, plane.roll_limit_cd);
+            //plane.suppress_throttle = true;
+            
         } else {
             plane.calc_nav_roll();
             plane.calc_nav_pitch();
