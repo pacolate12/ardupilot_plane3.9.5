@@ -2,6 +2,7 @@
 #include "Plane.h"
 
 static uint32_t timer;
+bool mission = false;
 
 bool ModeDBFCDA::_enter()
 {
@@ -89,7 +90,6 @@ void ModeDBFCDA::update()
         int32_t measured_lat = measured_gps.lat;
         int32_t measured_long = measured_gps.lng;
         int32_t measured_alt = measured_gps.alt;
-        bool mission = false;
 
         // - Altitude, Velocity, Position, Pitch, Roll, Yaw
         //Better way to do this is to just index variables?
@@ -119,7 +119,7 @@ void ModeDBFCDA::update()
             //SRV_Channels::set_output_scaled(SRV_Channel::k_elevator, elevator);
 
             //SRV_Channels::set_output_scaled(SRV_Channel::k_elevator, -3000); //range -4500 to 4500
-            SRV_Channels::set_output_scaled(SRV_Channel::k_aileron, -3000); //range -4500 to 4500
+            SRV_Channels::set_output_scaled(SRV_Channel::k_aileron, 50); //range -4500 to 4500
             //SRV_Channels::set_output_scaled(SRV_Channel::k_throttle, 0);
 
             mission = true;
