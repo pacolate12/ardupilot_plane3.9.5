@@ -119,7 +119,7 @@ void ModeDBFCDA::update()
             //SRV_Channels::set_output_scaled(SRV_Channel::k_elevator, elevator);
 
             //SRV_Channels::set_output_scaled(SRV_Channel::k_elevator, -3000); //range -4500 to 4500
-            SRV_Channels::set_output_scaled(SRV_Channel::k_aileron, -3000) //range -4500 to 4500
+            SRV_Channels::set_output_scaled(SRV_Channel::k_aileron, -3000); //range -4500 to 4500
             //SRV_Channels::set_output_scaled(SRV_Channel::k_throttle, 0);
 
             mission = true;
