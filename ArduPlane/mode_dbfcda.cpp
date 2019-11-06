@@ -74,7 +74,7 @@ void ModeDBFCDA::update()
         //TECS Controller: Attitude.cpp::calc_nav_pitch, AP_TECS.h
         int32_t m_commanded_pitch = plane.SpdHgt_Controller->get_pitch_demand(); //pitch angle demand: -9000 to +9000 rad
         //L1 Controller: Attitude.cpp::calc_nav_roll, AP_L1_Control.cpp
-        //int32_t commanded_roll = plane.nav_controller->nav_roll_cd(); //bank angle needed to achieve tracking from the last update_*() 
+        int32_t m_commanded_roll = plane.nav_controller->nav_roll_cd(); //bank angle needed to achieve tracking from the last update_*() 
         
         float measured_pitch = plane.ahrs.get_pitch();
         float measured_roll = plane.ahrs.get_roll();
@@ -106,12 +106,14 @@ void ModeDBFCDA::update()
             gcs().send_text(MAV_SEVERITY_INFO, "Position (long) : %i", measured_long); //Values: -841683625
             gcs().send_text(MAV_SEVERITY_INFO, "Altitude (baro) : %f", measured_baro); //Values: m around 148.1213
             gcs().send_text(MAV_SEVERITY_INFO, "Altitude (gps) : %i", measured_alt); //Values: 14098
-            gcs().send_text(MAV_SEVERITY_INFO, "Commanded Pitch : %i", m_commanded_pitch); //Values: 442?
+            gcs().send_text(MAV_SEVERITY_INFO, "Commanded Pitch : %i", m_commanded_pitch); //Values:
+            gcs().send_text(MAV_SEVERITY_INFO, "Commanded Roll : %i", m_commanded_roll); //Values:
         }
 
         if (measured_baro > 150.0f) {
             //plane.nav_pitch_cd = -8000;
-            plane.nav_roll_cd = constrain_int32(-5000, -plane.roll_limit_cd, plane.roll_limit_cd);
+            plane.nav_roll_cd = constrain_int32(5000, -plane.roll_limit_cd, plane.roll_limit_cd);
+            plane.nav_pitch_cd = constrain_int32(-5000, plane.pitch_limit_min_cd, plane.aparm.pitch_limit_max_cd.get());
             //plane.suppress_throttle = true;
             
         } else {
