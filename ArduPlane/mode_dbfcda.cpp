@@ -8,7 +8,7 @@ bool ModeDBFCDA::_enter()
 {
     plane.throttle_allows_nudging = false; //changed
     plane.auto_throttle_mode = false;  //changed
-    plane.auto_navigation_mode = false; //changed!
+    plane.auto_navigation_mode = false; //changed! - manual
     plane.auto_state.vtol_mode = false;
 
     plane.next_WP_loc = plane.prev_WP_loc = plane.current_loc;
@@ -45,7 +45,8 @@ void ModeDBFCDA::_exit()
 void ModeDBFCDA::update()
 {
     // Will be triggered during mode switch from auto to dbfcda
-    if (plane.mission.state() != AP_Mission::MISSION_RUNNING) { //understand this!
+    if (plane.mission.state() != AP_Mission::MISSION_RUNNING) { //understand this! - this is true
+
         // this could happen if AP_Landing::restart_landing_sequence() returns false which would only happen if:
         // restart_landing_sequence() is called when not executing a NAV_LAND or there is no previous nav point
         //plane.set_mode(plane.mode_rtl, MODE_REASON_MISSION_END);
@@ -114,13 +115,16 @@ void ModeDBFCDA::update()
         if (measured_baro > 150.0f) {
             //plane.nav_pitch_cd = -8000;
             //plane.nav_roll_cd = constrain_int32(5000, -plane.roll_limit_cd, plane.roll_limit_cd);  //works!
-            //plane.nav_pitch_cd = constrain_int32(-5000, plane.pitch_limit_min_cd, plane.aparm.pitch_limit_max_cd.get()); //-errors
+            plane.nav_pitch_cd = constrain_int32(-5000, plane.pitch_limit_min_cd, plane.aparm.pitch_limit_max_cd.get()); //-errors
+            
+            //Read stabilize_roll, stabilize_pitch from Attitude.cpp
+
             //plane.suppress_throttle = true; //-build error
             //SRV_Channels::set_output_scaled(SRV_Channel::k_elevator, elevator);
 
-            //SRV_Channels::set_output_scaled(SRV_Channel::k_elevator, -3000); //range -4500 to 4500
-            SRV_Channels::set_output_scaled(SRV_Channel::k_aileron, 50); //range -4500 to 4500
-            SRV_Channels::set_output_scaled(SRV_Channel::k_throttle, 0);
+            //SRV_Channels::set_output_scaled(SRV_Channel::k_elevator, -3000); //range -4500 to 4500 - don't work
+            //SRV_Channels::set_output_scaled(SRV_Channel::k_aileron, 50); //range -4500 to 4500 - don't work
+            //SRV_Channels::set_output_scaled(SRV_Channel::k_throttle, 0);
 
             mission = true;
             
