@@ -112,10 +112,10 @@ void ModeDBFCDA::update()
             gcs().send_text(MAV_SEVERITY_INFO, "Commanded Roll : %i", m_commanded_roll); //Values:
         }
 
-        if (measured_baro > 150.0f) {
+        if (measured_baro > 100.0f) {
             //plane.nav_pitch_cd = -8000;
-            //plane.nav_roll_cd = constrain_int32(5000, -plane.roll_limit_cd, plane.roll_limit_cd);  //works!
-            plane.nav_pitch_cd = constrain_int32(-5000, plane.pitch_limit_min_cd, plane.aparm.pitch_limit_max_cd.get()); //-errors
+            plane.nav_roll_cd = constrain_int32(5000, -plane.roll_limit_cd, plane.roll_limit_cd);  // works!
+            plane.nav_pitch_cd = constrain_int32(-5000, plane.pitch_limit_min_cd, plane.aparm.pitch_limit_max_cd.get()); // works
             
             //Read stabilize_roll, stabilize_pitch from Attitude.cpp
 
@@ -124,7 +124,7 @@ void ModeDBFCDA::update()
 
             //SRV_Channels::set_output_scaled(SRV_Channel::k_elevator, -3000); //range -4500 to 4500 - don't work
             //SRV_Channels::set_output_scaled(SRV_Channel::k_aileron, 50); //range -4500 to 4500 - don't work
-            //SRV_Channels::set_output_scaled(SRV_Channel::k_throttle, 0);
+            SRV_Channels::set_output_scaled(SRV_Channel::k_throttle, 0);
 
             mission = true;
             
