@@ -73,7 +73,12 @@ void ModeDBFCDA::update()
 
     } else if(nav_cmd_id == MAV_CMD_NAV_WAYPOINT) {
 
-        //TECS Controller: Attitude.cpp::calc_nav_pitch, AP_TECS.h
+
+        //----Input Variables!----
+        // - Altitude, Velocity, Position, Pitch, Roll, Yaw
+        //Better way to do this is to just index variables?
+
+        //TECS Controller: Attitude.cpp::calc_nav_pitch, AP_TECS.h - NOT USEFUL - Want to see servo output
         int32_t m_commanded_pitch = plane.SpdHgt_Controller->get_pitch_demand(); //pitch angle demand: -9000 to +9000 rad
         //L1 Controller: Attitude.cpp::calc_nav_roll, AP_L1_Control.cpp
         int32_t m_commanded_roll = plane.nav_controller->nav_roll_cd(); //bank angle needed to achieve tracking from the last update_*() 
@@ -82,9 +87,8 @@ void ModeDBFCDA::update()
         float measured_roll = plane.ahrs.get_roll();
         //if (plane.ahrs.have_inertial_nav()) {
         Vector2f measured_vel = plane.ahrs.groundspeed_vector();
-        float measured_vel_x = measured_vel.x;
-        float measured_vel_y = measured_vel.y;
         //}
+        Vector3f measured_GPS_vel = plane.gps.velocity();
         float measured_baro = plane.barometer.get_altitude(); //altitude relative to last calibrate() call
         //GPS data read
         Location measured_gps = plane.gps.location();
@@ -92,18 +96,22 @@ void ModeDBFCDA::update()
         int32_t measured_long = measured_gps.lng;
         int32_t measured_alt = measured_gps.alt;
 
-        // - Altitude, Velocity, Position, Pitch, Roll, Yaw
-        //Better way to do this is to just index variables?
+
+        //----Calculate Trajectory----
+
 
         
-        //Output to mavlink - run every .5 Hz?
-        if ((AP_HAL::micros() - timer) > 2000 * 1000UL) {
+        //----Output to mavlink----
+        if ((AP_HAL::micros() - timer) > 2000 * 1000UL) { //run every .5 Hz?
             timer = AP_HAL::micros();
             //Add timer based update message to MP
             gcs().send_text(MAV_SEVERITY_INFO, "Pitch (Measured) : %f", measured_pitch); //Values: .08 - .1 = climb
             gcs().send_text(MAV_SEVERITY_INFO, "Roll (Measured) : %f", measured_roll); //Values: -.6 = bank left
-            gcs().send_text(MAV_SEVERITY_INFO, "Velocity X : %f", measured_vel_x); //Values: m/s (+- values!) around 21
-            gcs().send_text(MAV_SEVERITY_INFO, "Velocity Y : %f", measured_vel_y); //Values: m/s (+- values!)
+            gcs().send_text(MAV_SEVERITY_INFO, "Velocity X : %f", measured_vel.x); //Values: m/s (+- values!) around 21
+            gcs().send_text(MAV_SEVERITY_INFO, "Velocity Y : %f", measured_vel.y); //Values: m/s (+- values!)
+            gcs().send_text(MAV_SEVERITY_INFO, "Velocity X (GPS) : %f", measured_GPS_vel.x); //Values: m/s (+- values!) around 21
+            gcs().send_text(MAV_SEVERITY_INFO, "Velocity Y (GPS) : %f", measured_GPS_vel.y); //Values: m/s (+- values!)
+            gcs().send_text(MAV_SEVERITY_INFO, "Velocity Z (GPS) : %f", measured_GPS_vel.z); //Values: m/s (+- values!)
             gcs().send_text(MAV_SEVERITY_INFO, "Position (lat) : %i", measured_lat); //Values: 334295519
             gcs().send_text(MAV_SEVERITY_INFO, "Position (long) : %i", measured_long); //Values: -841683625
             gcs().send_text(MAV_SEVERITY_INFO, "Altitude (baro) : %f", measured_baro); //Values: m around 148.1213
@@ -114,8 +122,8 @@ void ModeDBFCDA::update()
 
         if (measured_baro > 100.0f) {
             //plane.nav_pitch_cd = -8000;
-            plane.nav_roll_cd = constrain_int32(5000, -plane.roll_limit_cd, plane.roll_limit_cd);  // works!
-            plane.nav_pitch_cd = constrain_int32(-5000, plane.pitch_limit_min_cd, plane.aparm.pitch_limit_max_cd.get()); // works
+            plane.nav_roll_cd = constrain_int32(0, -plane.roll_limit_cd, plane.roll_limit_cd);  // works!
+            plane.nav_pitch_cd = constrain_int32(5000, plane.pitch_limit_min_cd, plane.aparm.pitch_limit_max_cd.get()); // works
             
             //Read stabilize_roll, stabilize_pitch from Attitude.cpp
 
