@@ -94,14 +94,20 @@ void ModeDBFCDA::update()
         //GPS data read
         Location measured_gps = plane.gps.location();
         int32_t measured_lat = measured_gps.lat;
-        int32_t measured_long = measured_gps.lng;
-        int32_t measured_alt = measured_gps.alt;
+        int32_t measured_long = measured_gps.lng/10000000.0;
+        int32_t measured_alt = measured_gps.alt/10000000.0;
 
 
         //----Calculate Trajectory----
-        //GPS - 
+        //GPS - 111.19km in 1 deg lat, 92.8km in 1 deg lon or 111122.19m , 92739.30m
+        //source - http://www.csgnetwork.com/gpsdistcalc.html - target = 33.42955707,-84.16963793
+        float target_waypoint_lat = 33.42955707;
+        float target_waypoint_long = -84.16963793;        
+        float xpos_target = target_waypoint_lat*111122.19;
+        float xpos_target = target_waypoint_long*92739.30;  
         float time_land = measured_baro/measured_GPS_vel.z;
-        float xpo_land = measured_gps.lng + measured_vel.x*time_land;
+        float xpos_land = (measured_gps.lat*111122.19) + measured_vel.x*time_land;
+        float ypos_land = (measured_gps.lng*92739.30) + measured_vel.x*time_land;
         
         
         //----Output to mavlink----
