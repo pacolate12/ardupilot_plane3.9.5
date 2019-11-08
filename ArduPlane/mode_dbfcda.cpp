@@ -87,6 +87,7 @@ void ModeDBFCDA::update()
         float measured_roll = plane.ahrs.get_roll();
         //if (plane.ahrs.have_inertial_nav()) {
         Vector2f measured_vel = plane.ahrs.groundspeed_vector();
+        //derivative of verticle position? plane.ahrs.get_vert_pos_rate
         //}
         Vector3f measured_GPS_vel = plane.gps.velocity();
         float measured_baro = plane.barometer.get_altitude(); //altitude relative to last calibrate() call
@@ -98,8 +99,10 @@ void ModeDBFCDA::update()
 
 
         //----Calculate Trajectory----
-
-
+        //GPS - 
+        float time_land = measured_baro/measured_GPS_vel.z;
+        float xpo_land = measured_gps.lng + measured_vel.x*time_land;
+        
         
         //----Output to mavlink----
         if ((AP_HAL::micros() - timer) > 2000 * 1000UL) { //run every .5 Hz?
@@ -107,11 +110,11 @@ void ModeDBFCDA::update()
             //Add timer based update message to MP
             gcs().send_text(MAV_SEVERITY_INFO, "Pitch (Measured) : %f", measured_pitch); //Values: .08 - .1 = climb
             gcs().send_text(MAV_SEVERITY_INFO, "Roll (Measured) : %f", measured_roll); //Values: -.6 = bank left
-            gcs().send_text(MAV_SEVERITY_INFO, "Velocity X : %f", measured_vel.x); //Values: m/s (+- values!) around 21
-            gcs().send_text(MAV_SEVERITY_INFO, "Velocity Y : %f", measured_vel.y); //Values: m/s (+- values!)
-            gcs().send_text(MAV_SEVERITY_INFO, "Velocity X (GPS) : %f", measured_GPS_vel.x); //Values: m/s (+- values!) around 21
-            gcs().send_text(MAV_SEVERITY_INFO, "Velocity Y (GPS) : %f", measured_GPS_vel.y); //Values: m/s (+- values!)
-            gcs().send_text(MAV_SEVERITY_INFO, "Velocity Z (GPS) : %f", measured_GPS_vel.z); //Values: m/s (+- values!)
+            gcs().send_text(MAV_SEVERITY_INFO, "Velocity X : %f", measured_vel.x); //Values: m/s (+ = north) around 21
+            gcs().send_text(MAV_SEVERITY_INFO, "Velocity Y : %f", measured_vel.y); //Values: m/s (+ = east)
+            gcs().send_text(MAV_SEVERITY_INFO, "Velocity X (GPS) : %f", measured_GPS_vel.x); //Values: m/s (+ = north) around 21
+            gcs().send_text(MAV_SEVERITY_INFO, "Velocity Y (GPS) : %f", measured_GPS_vel.y); //Values: m/s (+ = east)
+            gcs().send_text(MAV_SEVERITY_INFO, "Velocity Z (GPS) : %f", measured_GPS_vel.z); //Values: m/s (+ = down)
             gcs().send_text(MAV_SEVERITY_INFO, "Position (lat) : %i", measured_lat); //Values: 334295519
             gcs().send_text(MAV_SEVERITY_INFO, "Position (long) : %i", measured_long); //Values: -841683625
             gcs().send_text(MAV_SEVERITY_INFO, "Altitude (baro) : %f", measured_baro); //Values: m around 148.1213
@@ -121,6 +124,11 @@ void ModeDBFCDA::update()
         }
 
         if (measured_baro > 100.0f) {
+            mission = true;
+        }
+        //insert else if to restart mission (climb again - plane.calc_...) mid test?
+
+        if (mission) {
             //plane.nav_pitch_cd = -8000;
             plane.nav_roll_cd = constrain_int32(0, -plane.roll_limit_cd, plane.roll_limit_cd);  // works!
             plane.nav_pitch_cd = constrain_int32(5000, plane.pitch_limit_min_cd, plane.aparm.pitch_limit_max_cd.get()); // works
@@ -133,10 +141,8 @@ void ModeDBFCDA::update()
             //SRV_Channels::set_output_scaled(SRV_Channel::k_elevator, -3000); //range -4500 to 4500 - don't work
             //SRV_Channels::set_output_scaled(SRV_Channel::k_aileron, 50); //range -4500 to 4500 - don't work
             SRV_Channels::set_output_scaled(SRV_Channel::k_throttle, 0);
-
-            mission = true;
-            
-        } else if (!mission) {
+        }
+        else {
             plane.calc_nav_roll();
             plane.calc_nav_pitch();
             plane.calc_throttle();
