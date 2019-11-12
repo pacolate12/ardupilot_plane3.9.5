@@ -91,11 +91,13 @@ void ModeDBFCDA::update()
         //}
         Vector3f measured_GPS_vel = plane.gps.velocity();
         float measured_baro = plane.barometer.get_altitude(); //altitude relative to last calibrate() call
-        //GPS data read
+        //GPS data read - 5Hz update on sensor
         Location measured_gps = plane.gps.location();
         int32_t measured_lat = measured_gps.lat;
         int32_t measured_long = measured_gps.lng/10000000.0;
         int32_t measured_alt = measured_gps.alt/10000000.0;
+
+        //read servo output?
 
 
         //----Calculate Trajectory----
@@ -104,18 +106,30 @@ void ModeDBFCDA::update()
         float target_waypoint_lat = 33.42955707;
         float target_waypoint_long = -84.16963793;        
         float xpos_target = target_waypoint_lat*111122.19;
-        float xpos_target = target_waypoint_long*92739.30;  
+        float ypos_target = target_waypoint_long*92739.30;  
         float time_land = measured_baro/measured_GPS_vel.z;
         float xpos_land = (measured_gps.lat*111122.19) + measured_vel.x*time_land;
         float ypos_land = (measured_gps.lng*92739.30) + measured_vel.x*time_land;
+        
+        //if coming from north or south
+        float del_x = xpos_target-xpos_land; //negative if undershoot - pitch down (coming from north)
+        float del_y = ypos_land-ypos_target; //negative if too right - roll left (coming from north)
+        //Coming from south?
+        if (measured_vel.x>0.0) {
+            del_x = -del_x;
+            del_y = -del_y;
+        }
+
+        //if not coming from north or south - use guessed trajectory vector
+
         
         
         //----Output to mavlink----
         if ((AP_HAL::micros() - timer) > 2000 * 1000UL) { //run every .5 Hz?
             timer = AP_HAL::micros();
             //Add timer based update message to MP
-            gcs().send_text(MAV_SEVERITY_INFO, "Pitch (Measured) : %f", measured_pitch); //Values: .08 - .1 = climb
-            gcs().send_text(MAV_SEVERITY_INFO, "Roll (Measured) : %f", measured_roll); //Values: -.6 = bank left
+            gcs().send_text(MAV_SEVERITY_INFO, "Pitch (Measured) : %f", measured_pitch); //Values: .08 -> .1 = climb
+            gcs().send_text(MAV_SEVERITY_INFO, "Roll (Measured) : %f", measured_roll); //Values: -.6 = roll left
             gcs().send_text(MAV_SEVERITY_INFO, "Velocity X : %f", measured_vel.x); //Values: m/s (+ = north) around 21
             gcs().send_text(MAV_SEVERITY_INFO, "Velocity Y : %f", measured_vel.y); //Values: m/s (+ = east)
             gcs().send_text(MAV_SEVERITY_INFO, "Velocity X (GPS) : %f", measured_GPS_vel.x); //Values: m/s (+ = north) around 21
