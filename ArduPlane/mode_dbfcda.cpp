@@ -76,7 +76,8 @@ void ModeDBFCDA::update()
 
         //----Input Variables!----
         // - Altitude, Velocity, Position, Pitch, Roll, Yaw
-        //Better way to do this is to just index variables?
+        // Better way to do this is to just index variables?
+        // shrink this in future
 
         //TECS Controller: Attitude.cpp::calc_nav_pitch, AP_TECS.h - NOT USEFUL - Want to see servo output
         int32_t m_commanded_pitch = plane.SpdHgt_Controller->get_pitch_demand(); //pitch angle demand: -9000 to +9000 rad
@@ -100,20 +101,23 @@ void ModeDBFCDA::update()
         //read servo output?
 
 
+
         //----Calculate Trajectory----
         //GPS - 111.19km in 1 deg lat, 92.8km in 1 deg lon or 111122.19m , 92739.30m
         //source - http://www.csgnetwork.com/gpsdistcalc.html - target = 33.42955707,-84.16963793
         float target_waypoint_lat = 33.42955707;
-        float target_waypoint_long = -84.16963793;        
-        float xpos_target = target_waypoint_lat*111122.19;
-        float ypos_target = target_waypoint_long*92739.30;  
-        float time_land = measured_baro/measured_GPS_vel.z;
-        float xpos_land = (measured_gps.lat*111122.19) + measured_vel.x*time_land;
-        float ypos_land = (measured_gps.lng*92739.30) + measured_vel.x*time_land;
+        float target_waypoint_long = -84.16963793;      
+        Vector3f pos_target(target_waypoint_lat*111122.19, target_waypoint_long*92739.30, 0.0);
+        Vector3f pos_plane(measured_gps.lat*111122.19, measured_gps.lng*92739.30, measured_baro);
+        Vector3f vel_plane(measured_vel.x,measured_vel.y,measured_GPS_vel.z);
+
+        float time_land = pos_plane.z/vel_plane.z;
+        float xpos_land = pos_plane.x + vel_plane.x*time_land;
+        float ypos_land = pos_plane.y + vel_plane.y*time_land;
         
         //if coming from north or south
-        float del_x = xpos_target-xpos_land; //negative if undershoot - pitch down (coming from north)
-        float del_y = ypos_land-ypos_target; //negative if too right - roll left (coming from north)
+        float del_x = pos_target.x-xpos_land; //negative if undershoot - pitch down (coming from north)
+        float del_y = ypos_land-pos_target.y; //negative if too right - roll left (coming from north)
         //Coming from south?
         if (measured_vel.x>0.0) {
             del_x = -del_x;
@@ -121,7 +125,14 @@ void ModeDBFCDA::update()
         }
 
         //if not coming from north or south - use guessed trajectory vector
-
+        Vector3f unit_traj_desire = (pos_target - pos_plane);
+        unit_traj_desire = unit_traj_desire/unit_traj_desire.length();//norm = return sqrtf(sq(first, second, parameters...));
+        Vector3f unit_traj_current = vel_plane/vel_plane.length();
+        float traj_angle = unit_traj_current.angle(unit_traj_desire); //unneccessary?
+        float del_pitch = unit_traj_current.z-unit_traj_desire.z;//small angles error in z
+        //project to x-y plane
+        
+        //Quitting Project! :)
         
         
         //----Output to mavlink----
