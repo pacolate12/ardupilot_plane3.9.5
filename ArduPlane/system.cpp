@@ -423,6 +423,8 @@ void Plane::set_mode(enum FlightMode mode, mode_reason_t reason)
         g2.soaring_controller.init_cruising();
         break;
 
+    case AUTOdbf:
+
     case RTL:
         throttle_allows_nudging = true;
         auto_throttle_mode = true;
@@ -506,6 +508,7 @@ void Plane::exit_mode(enum FlightMode mode)
         auto_state.started_flying_in_auto_ms = 0;
     }
 }
+//This is interesting.. exit_mode is defined here! ^
 
 void Plane::check_long_failsafe()
 {
@@ -655,6 +658,9 @@ void Plane::notify_flight_mode(enum FlightMode mode)
         break;
     case AUTO:
         notify.set_flight_mode_str("AUTO");
+        break;
+    case AUTOdbf:
+        notify.set_flight_mode_str("AUTOdbf");
         break;
     case RTL:
         notify.set_flight_mode_str("RTL ");

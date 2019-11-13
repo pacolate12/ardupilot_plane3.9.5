@@ -37,6 +37,7 @@ MAV_MODE GCS_MAVLINK_Plane::base_mode() const
         _base_mode = MAV_MODE_FLAG_STABILIZE_ENABLED;
         break;
     case AUTO:
+    case AUTOdbf:
     case RTL:
     case LOITER:
     case AVOID_ADSB:
@@ -1634,6 +1635,7 @@ bool GCS_MAVLINK_Plane::set_mode(const uint8_t mode)
     case AVOID_ADSB:
     case GUIDED:
     case AUTO:
+    case AUTOdbf:
     case RTL:
     case LOITER:
     case QSTABILIZE:

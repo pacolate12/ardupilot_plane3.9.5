@@ -25,7 +25,7 @@
 void Plane::throttle_slew_limit(void)
 {
     uint8_t slewrate = aparm.throttle_slewrate;
-    if (control_mode==AUTO) {
+    if (control_mode==AUTO) { //interesting
         if (auto_state.takeoff_complete == false && g.takeoff_throttle_slewrate != 0) {
             slewrate = g.takeoff_throttle_slewrate;
         } else if (landing.get_throttle_slewrate() != 0 && flight_stage == AP_Vehicle::FixedWing::FLIGHT_LAND) {

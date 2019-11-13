@@ -459,6 +459,7 @@ void Plane::handle_auto_mode(void)
         calc_throttle();
     }
 }
+//Copy this for us! ^
 
 /*
   main flight mode dependent update code 
@@ -493,6 +494,7 @@ void Plane::update_flight_mode(void)
         handle_auto_mode();
         break;
 
+    case AUTOdbf:
     case AVOID_ADSB:
     case GUIDED:
         if (auto_state.vtol_loiter && quadplane.available()) {
@@ -694,6 +696,7 @@ void Plane::update_navigation()
         }
         break;
             
+    case AUTOdbf: //watch out here
     case RTL:
         if (quadplane.available() && quadplane.rtl_mode == 1 &&
             (nav_controller->reached_loiter_target() ||
