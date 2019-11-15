@@ -1065,7 +1065,7 @@ void GCS_MAVLINK::send_raw_imu()
     } else {
         mag.zero();
     }
-
+/*
     mavlink_msg_raw_imu_send(
         chan,
         AP_HAL::micros(),
@@ -1135,7 +1135,7 @@ void GCS_MAVLINK::send_raw_imu()
         mag.y,
         mag.z);        
 }
-
+*/
 // sub overrides this to send on-board temperature
 void GCS_MAVLINK::send_scaled_pressure3()
 {
