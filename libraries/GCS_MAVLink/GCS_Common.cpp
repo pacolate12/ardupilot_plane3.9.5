@@ -1051,7 +1051,7 @@ void GCS_MAVLINK::send_radio_in()
         values[17],
         receiver_rssi);        
 }
-
+/*
 void GCS_MAVLINK::send_raw_imu()
 {
     const AP_InertialSensor &ins = AP::ins();
