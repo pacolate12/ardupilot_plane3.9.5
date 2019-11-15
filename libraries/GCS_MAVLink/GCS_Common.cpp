@@ -297,6 +297,7 @@ void GCS_MAVLINK::send_rangefinder_downward() const
             s->voltage_mv() * 0.001f);
 }
 
+/*
 bool GCS_MAVLINK::send_proximity() const
 {
     AP_Proximity *proximity = AP_Proximity::get_singleton();
@@ -341,6 +342,7 @@ bool GCS_MAVLINK::send_proximity() const
     }
     return true;
 }
+*/
 
 // report AHRS2 state
 void GCS_MAVLINK::send_ahrs2()
