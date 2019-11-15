@@ -228,7 +228,7 @@ bool GCS_MAVLINK::send_battery_status() const
     }
     return true;
 }
-
+/*
 void GCS_MAVLINK::send_distance_sensor(const AP_RangeFinder_Backend *sensor, const uint8_t instance) const
 {
     if (!sensor->has_data()) {
@@ -246,7 +246,7 @@ void GCS_MAVLINK::send_distance_sensor(const AP_RangeFinder_Backend *sensor, con
         sensor->orientation(),                   // direction the sensor faces from MAV_SENSOR_ORIENTATION enum
         0);                                      // Measurement covariance in centimeters, 0 for unknown / invalid readings
 }
-
+*/
 bool GCS_MAVLINK::send_distance_sensor() const
 {
     RangeFinder *rangefinder = RangeFinder::get_singleton();
