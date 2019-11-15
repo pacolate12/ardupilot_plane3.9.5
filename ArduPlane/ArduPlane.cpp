@@ -460,6 +460,47 @@ void Plane::handle_auto_mode(void)
     }
 }
 //Copy this for us! ^
+/*
+  main handling for AUTOdbf mode
+ */
+void Plane::handle_autodbf_mode(void)
+{
+    uint16_t nav_cmd_id;
+
+    if (mission.state() != AP_Mission::MISSION_RUNNING) {
+        // this could happen if AP_Landing::restart_landing_sequence() returns false which would only happen if:
+        // restart_landing_sequence() is called when not executing a NAV_LAND or there is no previous nav point
+        //set_mode(RTL, MODE_REASON_MISSION_END);
+        gcs().send_text(MAV_SEVERITY_INFO, "Aircraft in auto without a running mission");
+        return;
+    }
+
+    nav_cmd_id = mission.get_current_nav_cmd().id;
+
+    if (nav_cmd_id == MAV_CMD_NAV_LAND) {
+        calc_nav_roll();
+        calc_nav_pitch();
+        
+        // allow landing to restrict the roll limits
+        nav_roll_cd = landing.constrain_roll(nav_roll_cd, g.level_roll_limit*100UL);
+
+        if (landing.is_throttle_suppressed()) {
+            // if landing is considered complete throttle is never allowed, regardless of landing type
+            SRV_Channels::set_output_scaled(SRV_Channel::k_throttle, 0);
+        } else {
+            calc_throttle();
+        }
+    } else {
+        // DBF flight mode - Control to ground? Variable limits?
+        if (nav_cmd_id != MAV_CMD_NAV_CONTINUE_AND_CHANGE_ALT) {
+            steer_state.hold_course_cd = -1;
+        }
+        calc_nav_roll();
+        calc_nav_pitch();
+        calc_throttle();
+    }
+}
+
 
 /*
   main flight mode dependent update code 
@@ -495,6 +536,9 @@ void Plane::update_flight_mode(void)
         break;
 
     case AUTOdbf:
+        handle_autodbf_mode();
+        break;
+    
     case AVOID_ADSB:
     case GUIDED:
         if (auto_state.vtol_loiter && quadplane.available()) {
@@ -697,6 +741,11 @@ void Plane::update_navigation()
         break;
             
     case AUTOdbf: //watch out here
+        if (ahrs.home_is_set()) {
+            mission.update();
+        }
+        break;
+
     case RTL:
         if (quadplane.available() && quadplane.rtl_mode == 1 &&
             (nav_controller->reached_loiter_target() ||
