@@ -150,6 +150,7 @@ public:
     friend class AP_AdvancedFailsafe_Plane;
     friend class AP_Avoidance_Plane;
     friend class GCS_Plane;
+    friend class 
 
     Plane(void);
 
@@ -969,6 +970,7 @@ private:
     void crash_detection_update(void);
     bool in_preLaunch_flight_stage(void);
     void handle_auto_mode(void);
+    void handle_autodbf_mode(void);
     void calc_throttle();
     void calc_nav_roll();
     void calc_nav_pitch();
